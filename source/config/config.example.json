@@ -1,0 +1,12 @@
+{
+    "certificate": {
+        "path": "",
+        "password": ""
+    },
+    "wsdlPath": "",
+    "defaultValues": {
+        "dic_popl": "",
+        "id_provoz": "",
+        "id_pokl": ""
+    }
+}

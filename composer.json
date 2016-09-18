@@ -1,0 +1,14 @@
+{
+    "name": "fritak/eet",
+    "description": "API for EET (electronic sales record) client in PHP",
+    "type": "library",
+    "license": ["MIT"],
+    "require": {
+        "php": ">=5.6.0",
+        "robrichards/wse-php": "*",
+        "robrichards/xmlseclibs": "*"
+    },
+    "autoload": {
+        "classmap": ["source/"]
+    }
+}
