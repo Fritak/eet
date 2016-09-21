@@ -15,7 +15,7 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
  * Main Class for EET sender.
  * 
  * @author Marek Sušický <marek.susicky@fritak.eu>
- * @version 1.0
+ * @version 1.0.1
  * @package eet
  * @link http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.0_EN.pdf Documentation
  */
@@ -74,7 +74,11 @@ class Sender
         if(is_array($input))
         {
             $receipt = new Receipt();
-            $receipt->uuid_zpravy = $input['uuid_zpravy'];
+            if(!empty($input['uuid_zpravy']))
+            {
+                $receipt->uuid_zpravy = $input['uuid_zpravy'];
+            }
+            
             $receipt->porad_cis = $input['porad_cis'];
             $receipt->celk_trzba = $input['celk_trzba'];
             

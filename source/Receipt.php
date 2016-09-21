@@ -2,13 +2,15 @@
 
 namespace Fritak\eet;
 
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Fritak\eet\ExceptionEet;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Receipt for EET according to v3 version.
  * 
  * @author Marek Sušický <marek.susicky@fritak.eu>
- * @version 1.0
+ * @version 1.0.1
  * @package eet
  * @link http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.0_EN.pdf Documentation
  */
@@ -194,8 +196,26 @@ class Receipt
 
     public function getHead()
     {
+        if(empty($this->uuid_zpravy))
+        {
+            try 
+            {
+                $generator = Uuid::uuid4();
+                $uuid      = $generator->toString();
+            } 
+            catch (UnsatisfiedDependencyException $e) 
+            {
+                throw new ExceptionEet('Requirements not met: ' . $e->getMessage(), 103);
+            }
+
+        }
+        else
+        {
+            $uuid = $this->uuid_zpravy;
+        }
+        
         return [
-            'uuid_zpravy' => $this->uuid_zpravy,
+            'uuid_zpravy' => $uuid,
             'dat_odesl' => $this->getDatOdesl(),
             'prvni_zaslani' => $this->prvni_zaslani,
             'overeni' => $this->overeni

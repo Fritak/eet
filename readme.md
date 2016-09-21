@@ -16,6 +16,7 @@ The minimum requirement is PHP 5.6 on your Web Server.
 Prerequisite are these libraries and php extensions: 
 * robrichards/wse-php
 * robrichards/xmlseclibs
+* ramsey/uuid
 * Soap client. See http://php.net/manual/en/soap.setup.php
 * Open SSL. See http://php.net/manual/en/openssl.setup.php
 
@@ -51,7 +52,9 @@ use Fritak\eet\Sender;
 $sender = new Sender(__DIR__ . '/config.json'); // load Sender with configuration
 
 $sender->addReceipt(['uuid_zpravy' => 'b3a09b52-7c87-4014-a496-4c7a53cf9125', 'porad_cis' => 68, 'celk_trzba' => 546]);
-$sender->addReceipt(['uuid_zpravy' => 'b3a09b52-7c87-4014-a496-4c7a53cf9126', 'porad_cis' => 69, 'celk_trzba' => 748]);
+
+// You can let uuid_zpravy empty, it will be  automatically generated
+$sender->addReceipt(['porad_cis' => 69, 'celk_trzba' => 748]);
 
 foreach($sender->sendAllReceipts() AS $response)
 {
@@ -68,7 +71,7 @@ use Fritak\eet\Receipt;
 $sender = new Sender(__DIR__ . '/config.json'); // load Sender with configuration
 
 $receipt = new Receipt();
-$receipt->uuid_zpravy = 'b3a09b52-7c87-4014-a496-4c7a53cf9125';
+$receipt->uuid_zpravy = 'b3a09b52-7c87-4014-a496-4c7a53cf9125'; // Or empty, it will be  automatically generated
 $receipt->porad_cis   = '68';
 $receipt->celk_trzba  = 546;
 
@@ -108,7 +111,7 @@ services:
 That's it! Now you can use it as noted above, for example action in presenter:
 ```php
 $sender = $this->context->getService('senderEet');
-$sender->addReceipt(['uuid_zpravy' => 'b3a09b52-7c87-4014-a496-4c7a53cf9125', 'porad_cis' => 85, 'celk_trzba' => 9875]);
+$sender->addReceipt(['porad_cis' => 85, 'celk_trzba' => 9875]);
 
 foreach($sender->sendAllReceipts() AS $response)
 {
