@@ -62,6 +62,12 @@ foreach($sender->sendAllReceipts() AS $response)
 }     
 ```
 
+## Change certificate or defalut values later on
+```php
+$sender->changeCertificate($certificate, $password);
+$sender->changeDefaultValues($dic, $workshopId, $cashRegisterId);
+```
+
 
 ## ADVANCED USAGE - Receipt
 ```php

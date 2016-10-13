@@ -15,7 +15,7 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
  * Main Class for EET sender.
  * 
  * @author Marek Sušický <marek.susicky@fritak.eu>
- * @version 1.0.1
+ * @version 1.1.0
  * @package eet
  * @link http://www.etrzby.cz/assets/cs/prilohy/EET_popis_rozhrani_v3.0_EN.pdf Documentation
  */
@@ -161,6 +161,39 @@ class Sender
         }
         
         return $return;
+    }
+    
+    /**
+     * Changes certificate
+     * 
+     * @param string $certificate Path or certificate
+     * @param string $password 
+     * 
+     * @return void 
+     */
+    public function changeCertificate($certificate, $password)
+    {
+        $this->config['certificate']['certificate'] = $certificate;
+        $this->config['certificate']['password']    = $password;
+
+        $this->loadCertificate();
+    }
+    
+    /**
+     * Changes default values
+     * 
+     * @param string $dic DIČ
+     * @param int $workshopId
+     * @param int $cashRegisterId
+     * 
+     * @return void 
+     */
+    public function changeDefaultValues($dic, $workshopId, $cashRegisterId)
+    {
+        $this->config['defaultValues']['dic']       = $dic;
+        $this->config['defaultValues']['id_provoz'] = $workshopId;
+        $this->config['defaultValues']['id_pokl']   = $cashRegisterId;
+
     }
 
     /**
