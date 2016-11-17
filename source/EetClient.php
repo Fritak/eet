@@ -2,9 +2,12 @@
 
 namespace Fritak\eet;
 
+use DOMDocument;
 use Fritak\eet\Certificate;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
+use RobRichards\WsePhp\WSSESoap;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
+use SoapClient;
 
 /**
  * Soap client for data message.
@@ -13,7 +16,7 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
  * @version 1.0
  * @package eet
  */
-class EetClient extends \SoapClient
+class EetClient extends SoapClient
 {
 
     /**
@@ -37,10 +40,10 @@ class EetClient extends \SoapClient
     public function __doRequest($request, $location, $saction, $version, $one_way = 0)
     {
         $XMLSecurityKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
-        $DOMDocument = new \DOMDocument('1.0');
+        $DOMDocument = new DOMDocument('1.0');
 
         $DOMDocument->loadXML($request);
-        $WSSESoap = new \WSSESoap($DOMDocument);
+        $WSSESoap = new WSSESoap($DOMDocument);
 
         $XMLSecurityKey->loadKey($this->certificate->pkey);
 
@@ -52,5 +55,10 @@ class EetClient extends \SoapClient
 
         return parent::__doRequest($WSSESoap->saveXML(), $location, $saction, $version, $one_way);
     }
+    
+    public function setCertificate(Certificate $certificate){
+        $this->certificate = $certificate;
+    }
 
 }
+
