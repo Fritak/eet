@@ -59,8 +59,10 @@ class Sender
         $this->requirements(); 
         
         $this->loadConfig($config);
-        $this->loadCertificate();
-        $this->loadEetClient();
+        if (isset($this->config['certificate'])){
+            $this->loadCertificate();
+            $this->loadEetClient();
+        }
     }
     
     
@@ -124,6 +126,10 @@ class Sender
      */
     public function send(Receipt $receipt)
     {
+        if (!$this->eetClient){
+            throw new ExceptionEet("No certificate provided!");
+        }
+        
         $data = $this->prepareDataForMessage($receipt);
 
         $response = $this->eetClient->OdeslaniTrzby($data);
@@ -177,6 +183,11 @@ class Sender
         $this->config['certificate']['password']    = $password;
 
         $this->loadCertificate();
+        if (!$this->eetClient){
+            $this->loadEetClient();
+        } else {
+            $this->eetClient->setCertificate($this->certificate);
+        }
     }
     
     /**
@@ -193,7 +204,6 @@ class Sender
         $this->config['defaultValues']['dic']       = $dic;
         $this->config['defaultValues']['id_provoz'] = $workshopId;
         $this->config['defaultValues']['id_pokl']   = $cashRegisterId;
-
     }
 
     /**
@@ -236,9 +246,8 @@ class Sender
         {
             throw new ExceptionEet('Please set config - Either path to the json file or array of values.', 202);
         }
-
-        if(!isset($this->config['certificate']['path']) ||
-           !isset($this->config['wsdlPath']))
+        
+        if(!isset($this->config['wsdlPath']))
         {
             throw new ExceptionEet('Some of mandatory keys in config are missing.', 203);
         }
@@ -317,3 +326,4 @@ class Sender
         return wordwrap(substr(sha1($sig), 0, 40) , 8 , '-' , true);
     }
 }
+
