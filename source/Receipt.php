@@ -183,6 +183,27 @@ class Receipt
      * @var string 
      */
     public $rezim = 0;
+    
+    /**
+     * PKP security code - set by the send() method
+     * 
+     * @var string
+     */
+    public $pkp;
+    
+    /**
+     * BKP security code - set by the send() method
+     * 
+     * @var string
+     */
+    public $bkp;
+    
+    /**
+     * FIK code - set by the send() method after successful request
+     * 
+     * @var string
+     */
+    public $fik;
 
     /**
      * Date and time of sending
@@ -295,3 +316,4 @@ class Receipt
     }
 
 }
+

@@ -131,6 +131,9 @@ class Sender
         }
         
         $data = $this->prepareDataForMessage($receipt);
+        
+        $receipt->pkp = $data['KontrolniKody']['pkp']['_'];
+        $receipt->bkp = $data['KontrolniKody']['bkp']['_'];
 
         $response = $this->eetClient->OdeslaniTrzby($data);
 
@@ -148,6 +151,8 @@ class Sender
         {
             throw new ExceptionEet('EET communication check error, received BKP code is wrong!', 2000);
         }
+        
+        $receipt->fik = $response->Potvrzeni->fik;
 
         return $response;
     }
