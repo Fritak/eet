@@ -1,9 +1,9 @@
 {
     "certificate": {
-        "path": "/home/martin/Development/Community/eet/example/certificate/01000003.p12",
+        "path": "app/eet-fritak/example/certificate/01000003.p12",
         "password": "eet"
     },
-    "wsdlPath": "/home/martin/Development/Community/eet/example/soapFiles/EETServiceSOAP.wsdl",
+    "wsdlPath": "app/eet-fritak/example/soapFiles/EETServiceSOAP.wsdl",
     "defaultValues": {
         "dic_popl": "CZ1212121218",
         "id_provoz": "273",
