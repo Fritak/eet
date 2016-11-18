@@ -2,14 +2,14 @@
 
 namespace Fritak\eet;
 
-use Fritak\eet\ExceptionEet;
-
-use Fritak\eet\Receipt;
-use Fritak\eet\EetClient;
+use DateTime;
 use Fritak\eet\Certificate;
-
-use Traversable;
+use Fritak\eet\EetClient;
+use Fritak\eet\ExceptionEet;
+use Fritak\eet\Receipt;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
+use SoapFault;
+use Traversable;
 
 /**
  * Main Class for EET sender.
@@ -32,7 +32,7 @@ class Sender
     /**
      * Certificate for sending.
      * 
-     * @var Fritak\eet\Certificate 
+     * @var Certificate 
      */
     protected $certificate;
 
@@ -89,7 +89,7 @@ class Sender
                 $receipt->$key = isset($input[$key])? $input[$key] : $defaultValue;
             }
             
-            $receipt->dat_trzby = isset($input['dat_trzby'])? $input['dat_trzby'] : new \DateTime();
+            $receipt->dat_trzby = isset($input['dat_trzby'])? $input['dat_trzby'] : new DateTime();
         }
 
         $this->receipts[] = $receipt;
@@ -121,8 +121,10 @@ class Sender
     /**
      * Performs sending a data message to the Ministry of Finance.
      * 
-     * @param \Fritak\eet\Receipt $receipt
+     * @param Receipt $receipt
      * @return boolean|string
+     * @throws ExceptionEet
+     * @throws SoapFault
      */
     public function send(Receipt $receipt)
     {
@@ -139,7 +141,7 @@ class Sender
 
         if (isset($response->Chyba))
         {
-            throw new ExceptionEet('EET communication error #' . $response->Chyba->kod . ' ' . ExceptionEet::$ERROR_CODE[$response->Chyba->kod], 1000 + (int) $response->Chyba->kod);
+            throw new ExceptionEet('EET communication error #' . $response->Chyba->kod . ' ' . ExceptionEet::$ERROR_CODE[$response->Chyba->kod], ExceptionEet::EET_CODE_OFFSET + (int) $response->Chyba->kod);
         }
         
         if(isset($response->Varovani))
@@ -149,7 +151,7 @@ class Sender
         
         if(isset($response->Hlavicka->bkp) && $response->Hlavicka->bkp != $data['KontrolniKody']['bkp']['_'])
         {
-            throw new ExceptionEet('EET communication check error, received BKP code is wrong!', 2000);
+            throw new ExceptionEet('EET communication check error, received BKP code is wrong!', ExceptionEet::BKP_MISMATCH_CODE);
         }
         
         $receipt->fik = $response->Potvrzeni->fik;
@@ -161,6 +163,8 @@ class Sender
      * Performs sending a data message of all receipts.
      * 
      * @return array Array of responses
+     * @throws ExceptionEet
+     * @throws SoapFault
      */
     public function sendAllReceipts()
     {
@@ -270,7 +274,10 @@ class Sender
      */
     private function loadEetClient()
     {
-        $this->eetClient = new EetClient($this->config['wsdlPath'], $this->certificate);
+        $this->eetClient = new EetClient($this->config['wsdlPath'],
+                                         $this->certificate,
+                                         isset($this->config['timeout']) ? $this->config['timeout'] : FALSE,
+                                         isset($this->config['connectionTimeout']) ? $this->config['connectionTimeout'] : FALSE);
     }
 
     /**
@@ -292,7 +299,7 @@ class Sender
     
     /**
      * 
-     * @param Fritak\eet\Receipt $receipt
+     * @param Receipt $receipt
      * @return type
      */
     private function getControlCodes(Receipt $receipt)
