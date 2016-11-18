@@ -18,27 +18,49 @@ use SoapClient;
  */
 class EetClient extends SoapClient
 {
+    const TIMEOUT_INI_KEY = 'default_socket_timeout';
 
     /**
      *
      * @var Certificate 
      */
     protected $certificate;
-
+    
+    /**
+     * Timeout in seconds
+     * @var int
+     */
+    protected $timeout;
+    
+    /**
+     * Connection timeout in seconds
+     * @var int
+     */
+    protected $connectionTimeout;
+    
     /**
      * 
      * @param string $wsdl
      * @param Certificate $certificate
+     * @param int $timeout Timeout time in seconds
+     * @param int $connectionTimeout Connection timeout in seconds
      */
-    public function __construct($wsdl, Certificate $certificate)
+    public function __construct($wsdl, Certificate $certificate, $timeout = FALSE, $connectionTimeout = FALSE)
     {
         $this->certificate = $certificate;
-
-        parent::__construct($wsdl, ['exceptions' => TRUE]);
+        $this->timeout = $timeout;
+        $this->connectionTimeout = $connectionTimeout;
+        
+        $opts = ['exceptions' => TRUE];
+        if ($this->connectionTimeout !== FALSE){
+            $opts['connection_timeout'] = $connectionTimeout;
+        }
+        parent::__construct($wsdl, $opts);
     }
 
     public function __doRequest($request, $location, $saction, $version, $one_way = 0)
     {
+        $this->exception = FALSE;
         $XMLSecurityKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
         $DOMDocument = new DOMDocument('1.0');
 
@@ -53,11 +75,20 @@ class EetClient extends SoapClient
         $binaryToken = $WSSESoap->addBinaryToken($this->certificate->cert);
         $WSSESoap->attachTokentoSig($binaryToken);
 
-        return parent::__doRequest($WSSESoap->saveXML(), $location, $saction, $version, $one_way);
+        $original = ini_get(self::TIMEOUT_INI_KEY);
+        
+        if ($this->timeout !== FALSE) { ini_set(self::TIMEOUT_INI_KEY, $this->timeout*1000); }
+        $response = parent::__doRequest($WSSESoap->saveXML(), $location, $saction, $version, $one_way);
+        ini_set(self::TIMEOUT_INI_KEY, $original);
+        return $response;
     }
     
     public function setCertificate(Certificate $certificate){
         $this->certificate = $certificate;
+    }
+    
+    public function getException(){
+        return $this->exception;
     }
 
 }

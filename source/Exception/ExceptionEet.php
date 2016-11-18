@@ -4,6 +4,9 @@ namespace Fritak\eet;
 
 class ExceptionEet extends \Exception 
 {
+    const EET_CODE_OFFSET = 1000;
+    const BKP_MISMATCH_CODE = 2000;
+    
     public static $WARNING_CODE = 
     [
         1 => "DIC poplatnika v datove zprave se neshoduje s DIC v certifikatu (The taxpayer identification codes (DIČ) in the message and certificate differ)",

@@ -34,7 +34,9 @@ Example of config:
         "dic_popl": "CZ1212121218",
         "id_provoz": "273",
         "id_pokl": "1"
-    }
+    },
+    "timeout": 10,
+    "connectionTimeout": 3
 }
 ```
 * Move certificate (PKCS#12) to your path. (See information on how to get one, or use the certificate from "/example/certificate" for playground - TEST only)

@@ -8,5 +8,7 @@
         "dic_popl": "CZ1212121218",
         "id_provoz": "273",
         "id_pokl": "1"
-    }
+    },
+    "timeout": 10,
+    "connectionTimeout": 3
 }
