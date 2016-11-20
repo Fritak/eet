@@ -134,7 +134,7 @@ class Sender
         
         $data = $this->prepareDataForMessage($receipt);
         
-        $receipt->pkp = $data['KontrolniKody']['pkp']['_'];
+        $receipt->pkp = base64_encode($data['KontrolniKody']['pkp']['_']);
         $receipt->bkp = $data['KontrolniKody']['bkp']['_'];
 
         $response = $this->eetClient->OdeslaniTrzby($data);
