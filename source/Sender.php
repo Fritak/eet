@@ -198,6 +198,21 @@ class Sender
             $this->eetClient->setCertificate($this->certificate);
         }
     }
+   
+    /**
+     * Changes WSDL path, reloads EetClient
+     * 
+     * @param string $wsdlPath
+     * 
+     * @return void
+     */
+    public function changeWsdlPath($wsdlPath){
+        $this->config['wsdlPath'] = $wsdlPath;
+        if ($this->eetClient){
+            $this->loadEetClient();
+        }
+    }
+    
     
     /**
      * Changes default values
