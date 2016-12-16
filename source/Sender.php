@@ -28,6 +28,13 @@ class Sender
      * @var array 
      */
     protected $config = NULL;
+
+    /**
+     * Config from construct.
+     *
+     * @var array|string
+     */
+    protected $configFromConstruct = NULL;
     
     /**
      * Certificate for sending.
@@ -55,14 +62,7 @@ class Sender
      */
     public function __construct($config = __DIR__ . '/config/config.json')
     {
-        // Check if mandatory classes and extension are present.
-        $this->requirements(); 
-        
-        $this->loadConfig($config);
-        if (isset($this->config['certificate'])){
-            $this->loadCertificate();
-            $this->loadEetClient();
-        }
+        $this->configFromConstruct = $config;
     }
     
     
@@ -72,6 +72,8 @@ class Sender
         {
             throw new ExceptionEet('Please set input - Either Receipt instance or array of the values.', 301);
         }
+
+        $this->loadRequirements();
         
         if(is_array($input))
         {
@@ -104,6 +106,8 @@ class Sender
      */
     public function dryRunSend(Receipt $receipt)
     {
+        $this->loadRequirements();
+
         try
         {
             $receipt->overeni = TRUE;
@@ -128,6 +132,8 @@ class Sender
      */
     public function send(Receipt $receipt)
     {
+        $this->loadRequirements();
+
         if (!$this->eetClient){
             throw new ExceptionEet("No certificate provided!");
         }
@@ -168,6 +174,8 @@ class Sender
      */
     public function sendAllReceipts()
     {
+        $this->loadRequirements();
+
         $return = [];
         
         foreach ($this->receipts AS $receipt)
@@ -248,22 +256,37 @@ class Sender
             throw new ExceptionEet('Requirements not met: Please install Soap client. See http://php.net/manual/en/class.soapclient.php', 102);
         }
     }
+
+    /**
+     * Will load all needed requirements.
+     */
+    protected function loadRequirements()
+    {
+        // Check if mandatory classes and extension are present.
+        $this->requirements();
+
+        $this->loadConfig();
+        if (isset($this->config['certificate']))
+        {
+            $this->loadCertificate();
+            $this->loadEetClient();
+        }
+    }
     
     /**
      * Sets the config.
-     * 
-     * @param string|array $config Either path to the json file or array of values.
+     *
      * @throws EetException
      */
-    protected function loadConfig($config)
+    protected function loadConfig()
     {
-        if(is_array($config) || $config instanceof Traversable)
+        if(is_array($this->configFromConstruct) || $this->configFromConstruct instanceof Traversable)
         {
-            $this->config = $config;
+            $this->config = $this->configFromConstruct;
         }
-        else if(file_exists($config))
+        else if(file_exists($this->configFromConstruct))
         {
-            $this->config = json_decode(file_get_contents($config), TRUE);
+            $this->config = json_decode(file_get_contents($this->configFromConstruct), TRUE);
         }
 
         if(empty($this->config))
