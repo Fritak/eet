@@ -196,15 +196,10 @@ class Sender
      */
     public function changeCertificate($certificate, $password)
     {
-        $this->config['certificate']['certificate'] = $certificate;
-        $this->config['certificate']['password']    = $password;
+        $this->configFromConstruct['certificate']['certificate'] = $certificate;
+        $this->configFromConstruct['certificate']['password']    = $password;
 
-        $this->loadCertificate();
-        if (!$this->eetClient){
-            $this->loadEetClient();
-        } else {
-            $this->eetClient->setCertificate($this->certificate);
-        }
+        $this->loadRequirements();
     }
    
     /**
@@ -214,9 +209,12 @@ class Sender
      * 
      * @return void
      */
-    public function changeWsdlPath($wsdlPath){
+    public function changeWsdlPath($wsdlPath)
+    {
         $this->config['wsdlPath'] = $wsdlPath;
-        if ($this->eetClient){
+
+        if ($this->eetClient)
+        {
             $this->loadEetClient();
         }
     }
@@ -224,7 +222,7 @@ class Sender
     
     /**
      * Changes default values
-     * 
+     *
      * @param string $dic DIČ
      * @param int $workshopId
      * @param int $cashRegisterId
@@ -233,9 +231,9 @@ class Sender
      */
     public function changeDefaultValues($dic, $workshopId, $cashRegisterId)
     {
-        $this->config['defaultValues']['dic']       = $dic;
-        $this->config['defaultValues']['id_provoz'] = $workshopId;
-        $this->config['defaultValues']['id_pokl']   = $cashRegisterId;
+        $this->configFromConstruct['defaultValues']['dic']       = $dic;
+        $this->configFromConstruct['defaultValues']['id_provoz'] = $workshopId;
+        $this->configFromConstruct['defaultValues']['id_pokl']   = $cashRegisterId;
     }
 
     /**
