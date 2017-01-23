@@ -92,9 +92,10 @@ class Sender
             }
             
             $receipt->dat_trzby = isset($input['dat_trzby'])? $input['dat_trzby'] : new DateTime();
-        }
-
-        $this->receipts[] = $receipt;
+			   $this->receipts[] = $receipt;
+        }else if($input instanceof Receipt){
+			   $this->receipts[] = $input;
+		  }
     }
 
     /**
