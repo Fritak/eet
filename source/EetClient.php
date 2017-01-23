@@ -37,6 +37,12 @@ class EetClient extends SoapClient
      * @var int
      */
     protected $connectionTimeout;
+
+    /**
+     * config
+     * @var array
+     */
+    protected $config = array();
     
     /**
      * 
@@ -65,19 +71,37 @@ class EetClient extends SoapClient
         $DOMDocument = new DOMDocument('1.0');
 
         $DOMDocument->loadXML($request);
+
+		if(isset($this->config["EETXMLSchema"])){
+			$xml = $DOMDocument->SaveXML();
+			foreach($DOMDocument->childNodes as $node1){
+				foreach($node1->childNodes as $node2){
+					$DOMDocument2 = new \DOMDocument;
+					$inner = implode(array_map([$node2->ownerDocument,"saveHTML"], iterator_to_array($node2->childNodes)));
+					$inner = str_replace("<ns1:Trzba>",'<ns1:Trzba xmlns:ns1="http://fs.mfcr.cz/eet/schema/v3">',$inner);
+					$DOMDocument2->loadXML($inner);
+					if(!$DOMDocument2->schemaValidate($this->config["EETXMLSchema"])){
+						throw new \Exception("Unable to validate input according to schema");
+					}
+				}
+			}
+		}
+		
+
+
         $WSSESoap = new WSSESoap($DOMDocument);
 
         $XMLSecurityKey->loadKey($this->certificate->pkey);
 
         $WSSESoap->addTimestamp();
         $WSSESoap->signSoapDoc($XMLSecurityKey, ["algorithm" => XMLSecurityDSig::SHA256]);
-
         $binaryToken = $WSSESoap->addBinaryToken($this->certificate->cert);
         $WSSESoap->attachTokentoSig($binaryToken);
 
         $original = ini_get(self::TIMEOUT_INI_KEY);
-        
+		
         if ($this->timeout !== FALSE) { ini_set(self::TIMEOUT_INI_KEY, $this->timeout*1000); }
+		
         $response = parent::__doRequest($WSSESoap->saveXML(), $location, $saction, $version, $one_way);
         ini_set(self::TIMEOUT_INI_KEY, $original);
         return $response;
@@ -90,6 +114,4 @@ class EetClient extends SoapClient
     public function getException(){
         return $this->exception;
     }
-
 }
-
