@@ -92,10 +92,13 @@ class Sender
             }
             
             $receipt->dat_trzby = isset($input['dat_trzby'])? $input['dat_trzby'] : new DateTime();
-			   $this->receipts[] = $receipt;
-        }else if($input instanceof Receipt){
-			   $this->receipts[] = $input;
-		  }
+
+            $this->receipts[] = $receipt;
+        }
+        elseif ($input instanceof Receipt)
+        {
+            $this->receipts[] = $input;
+        }
     }
 
     /**
@@ -197,8 +200,19 @@ class Sender
      */
     public function changeCertificate($certificate, $password)
     {
-        $this->configFromConstruct['certificate']['certificate'] = $certificate;
-        $this->configFromConstruct['certificate']['password']    = $password;
+        if (strlen($certificate) < 2000)
+        {
+            $this->configFromConstruct['certificate']['path'] = $certificate;
+        }
+        else
+        {
+            $this->configFromConstruct['certificate']['certificate'] = $certificate;
+        }
+
+        if (!empty($password))
+        {
+            $this->configFromConstruct['certificate']['password'] = $password;
+        }
 
         $this->loadRequirements();
     }
@@ -212,7 +226,8 @@ class Sender
      */
     public function changeWsdlPath($wsdlPath)
     {
-        $this->config['wsdlPath'] = $wsdlPath;
+        $this->configFromConstruct['wsdlPath'] = $wsdlPath;
+        $this->config['wsdlPath']              = $wsdlPath;
 
         if ($this->eetClient)
         {
