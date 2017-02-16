@@ -166,6 +166,8 @@ class Sender
         
         $receipt->fik = $response->Potvrzeni->fik;
 
+        $response->pkp = base64_encode($data['KontrolniKody']['pkp']['_']);
+
         return $response;
     }
     
@@ -354,7 +356,7 @@ class Sender
      * @param Receipt $receipt
      * @return type
      */
-    private function getControlCodes(Receipt $receipt)
+    public function getControlCodes(Receipt $receipt)
     {
         $securityKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
         $securityKey->loadKey($this->certificate->pkey);
