@@ -97,7 +97,13 @@ class Sender
         }
         elseif ($input instanceof Receipt)
         {
-            $this->receipts[] = $input;
+			
+            foreach ($this->config['defaultValues'] AS $key => $defaultValue)
+            {
+				if(!isset($input->$key)) $input->$key = $defaultValue;
+            }
+            if(!isset($input->dat_trzby)) $input->dat_trzby = new DateTime();
+			$this->receipts[] = $input;
         }
     }
 
@@ -331,7 +337,11 @@ class Sender
         $this->eetClient = new EetClient($this->config['wsdlPath'],
                                          $this->certificate,
                                          isset($this->config['timeout']) ? $this->config['timeout'] : FALSE,
-                                         isset($this->config['connectionTimeout']) ? $this->config['connectionTimeout'] : FALSE);
+                                         isset($this->config['connectionTimeout']) ? $this->config['connectionTimeout'] : FALSE,
+										 $this->config
+										 );
+		
+		
     }
 
     /**
@@ -392,4 +402,3 @@ class Sender
         return wordwrap(substr(sha1($sig), 0, 40) , 8 , '-' , true);
     }
 }
-
