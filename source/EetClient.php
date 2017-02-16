@@ -51,11 +51,12 @@ class EetClient extends SoapClient
      * @param int $timeout Timeout time in seconds
      * @param int $connectionTimeout Connection timeout in seconds
      */
-    public function __construct($wsdl, Certificate $certificate, $timeout = FALSE, $connectionTimeout = FALSE)
+    public function __construct($wsdl, Certificate $certificate, $timeout = FALSE, $connectionTimeout = FALSE,$config=array())
     {
         $this->certificate = $certificate;
         $this->timeout = $timeout;
         $this->connectionTimeout = $connectionTimeout;
+		$this->config = $config;
         
         $opts = ['exceptions' => TRUE];
         if ($this->connectionTimeout !== FALSE){
@@ -64,6 +65,29 @@ class EetClient extends SoapClient
         parent::__construct($wsdl, $opts);
     }
 
+	function libxml_display_error($error)
+	{
+		// from http://php.net/manual/en/domdocument.schemavalidate.php
+		$return = "";
+		switch ($error->level) {
+			case LIBXML_ERR_WARNING:
+				$return .= "Warning $error->code: ";
+				break;
+			case LIBXML_ERR_ERROR:
+				$return .= "Error $error->code: ";
+				break;
+			case LIBXML_ERR_FATAL:
+				$return .= "Fatal Error $error->code: ";
+				break;
+		}
+		$return .= trim($error->message);
+		if ($error->file) {
+			$return .=    " in $error->file";
+		}
+		$return .= " on line $error->line\n";
+
+		return $return;
+	}
     public function __doRequest($request, $location, $saction, $version, $one_way = 0)
     {
         $this->exception = FALSE;
@@ -80,8 +104,15 @@ class EetClient extends SoapClient
 					$inner = implode(array_map([$node2->ownerDocument,"saveHTML"], iterator_to_array($node2->childNodes)));
 					$inner = str_replace("<ns1:Trzba>",'<ns1:Trzba xmlns:ns1="http://fs.mfcr.cz/eet/schema/v3">',$inner);
 					$DOMDocument2->loadXML($inner);
+					\libxml_use_internal_errors(true);
 					if(!$DOMDocument2->schemaValidate($this->config["EETXMLSchema"])){
-						throw new \Exception("Unable to validate input according to schema");
+						// Enable user error handling
+						$errors = \libxml_get_errors();
+						foreach ($errors as $error) {
+							$out.=$this->libxml_display_error($error);
+						}
+						\libxml_clear_errors();
+						throw new \Fritak\eet\ExceptionEet("Unable to validate input according to schema: ".$out);
 					}
 				}
 			}
