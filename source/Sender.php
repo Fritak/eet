@@ -78,6 +78,7 @@ class Sender
         if(is_array($input))
         {
             $receipt = new Receipt();
+
             if(!empty($input['uuid_zpravy']))
             {
                 $receipt->uuid_zpravy = $input['uuid_zpravy'];
@@ -144,7 +145,8 @@ class Sender
     {
         $this->loadRequirements();
 
-        if (!$this->eetClient){
+        if (!$this->eetClient)
+        {
             throw new ExceptionEet("No certificate provided!");
         }
         
@@ -162,7 +164,7 @@ class Sender
         
         if(isset($response->Varovani))
         {
-            trigger_error('EET communication WARNING: #' . $response->Varovani->kod_varov . ' ' . ExceptionEet::$WARNING_CODE[$response->Varovani->kod_varov], E_USER_WARNING);
+            throw new ExceptionEet('EET communication WARNING: #' . $response->Varovani->kod_varov . ' ' . ExceptionEet::$WARNING_CODE[$response->Varovani->kod_varov]);
         }
         
         if(isset($response->Hlavicka->bkp) && $response->Hlavicka->bkp != $data['KontrolniKody']['bkp']['_'])
@@ -338,8 +340,7 @@ class Sender
                                          $this->certificate,
                                          isset($this->config['timeout']) ? $this->config['timeout'] : FALSE,
                                          isset($this->config['connectionTimeout']) ? $this->config['connectionTimeout'] : FALSE,
-										 $this->config
-										 );
+										 $this->config);
 		
 		
     }
@@ -362,9 +363,10 @@ class Sender
     }
     
     /**
-     * 
+     * Return control codes - bkp and pkp
+     *
      * @param Receipt $receipt
-     * @return type
+     * @return array
      */
     public function getControlCodes(Receipt $receipt)
     {
