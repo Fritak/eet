@@ -60,8 +60,9 @@ class Sender
      * @param string|array $config Path to the config file or config in array itself.
      * @return void
      */
-    public function __construct($config = __DIR__ . '/config/config.json')
+    public function __construct($config = null)
     {
+        if(!$config) $config = __DIR__ . '/config/config.json';
         $this->configFromConstruct = $config;
     }
     
